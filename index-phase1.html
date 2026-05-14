@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Auto Dice Roller</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body{
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-family:Arial, sans-serif;
+      transition:background 0.8s ease;
+      touch-action:manipulation;
+      user-select:none;
+    }
+
+    .container{
+      text-align:center;
+    }
+
+    .dice{
+      width:180px;
+      height:180px;
+      background:white;
+      border-radius:28px;
+      position:relative;
+      box-shadow:
+        0 20px 50px rgba(0,0,0,0.25),
+        inset 0 0 15px rgba(255,255,255,0.6);
+      transition:transform 0.15s linear;
+    }
+
+    .dot{
+      width:26px;
+      height:26px;
+      background:#111;
+      border-radius:50%;
+      position:absolute;
+      opacity:0;
+      transform:scale(0.6);
+      transition:all 0.25s ease;
+    }
+
+    .show{
+      opacity:1;
+      transform:scale(1);
+    }
+
+    /* Dot positions */
+    .center { top:50%; left:50%; transform:translate(-50%,-50%); }
+    .top-left { top:22px; left:22px; }
+    .top-right { top:22px; right:22px; }
+    .middle-left { top:50%; left:22px; transform:translateY(-50%); }
+    .middle-right { top:50%; right:22px; transform:translateY(-50%); }
+    .bottom-left { bottom:22px; left:22px; }
+    .bottom-right { bottom:22px; right:22px; }
+
+    .info{
+      margin-top:30px;
+      color:white;
+      font-size:22px;
+      font-weight:bold;
+      text-shadow:0 3px 10px rgba(0,0,0,0.4);
+      letter-spacing:1px;
+    }
+
+    @keyframes rolling {
+      0% { transform:rotate(0deg) scale(1); }
+      25% { transform:rotate(90deg) scale(1.08); }
+      50% { transform:rotate(180deg) scale(0.95); }
+      75% { transform:rotate(270deg) scale(1.08); }
+      100% { transform:rotate(360deg) scale(1); }
+    }
+
+    .rolling{
+      animation:rolling 0.5s linear infinite;
+    }
+
+    @media (max-width:600px){
+      .dice{
+        width:150px;
+        height:150px;
+      }
+
+      .dot{
+        width:22px;
+        height:22px;
+      }
+
+      .info{
+        font-size:18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="dice" id="dice">
+      <div class="dot top-left"></div>
+      <div class="dot top-right"></div>
+      <div class="dot middle-left"></div>
+      <div class="dot middle-right"></div>
+      <div class="dot bottom-left"></div>
+      <div class="dot bottom-right"></div>
+      <div class="dot center"></div>
+    </div>
+
+  </div>
+
+<script>
+
+const dice = document.getElementById("dice");
+const dots = document.querySelectorAll(".dot");
+
+const backgrounds = [
+  "linear-gradient(135deg, #ff512f, #dd2476)",
+  "linear-gradient(135deg, #00c6ff, #0072ff)",
+  "linear-gradient(135deg, #11998e, #38ef7d)",
+  "linear-gradient(135deg, #fc466b, #3f5efb)",
+  "linear-gradient(135deg, #f7971e, #ffd200)",
+  "linear-gradient(135deg, #8e2de2, #4a00e0)",
+  "linear-gradient(135deg, #ff9966, #ff5e62)",
+  "linear-gradient(135deg, #56ab2f, #a8e063)",
+  "linear-gradient(135deg, #141e30, #243b55)",
+  "linear-gradient(135deg, #ff0844, #ffb199)"
+];
+
+function hideAllDots(){
+  dots.forEach(dot => dot.classList.remove("show"));
+}
+
+function showFace(number){
+
+  hideAllDots();
+
+  const map = {
+    1: [6],
+    2: [0,5],
+    3: [0,6,5],
+    4: [0,1,4,5],
+    5: [0,1,6,4,5],
+    6: [0,1,2,3,4,5]
+  };
+
+  map[number].forEach(index=>{
+    dots[index].classList.add("show");
+  });
+}
+
+function randomBackground(){
+  const bg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+  document.body.style.background = bg;
+}
+
+function secureRandomDice(){
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return (array[0] % 6) + 1;
+}
+
+let rolling = false;
+
+function rollDice(){
+
+  if(rolling) return;
+
+  rolling = true;
+
+  randomBackground();
+
+  dice.classList.add("rolling");
+
+  let tempRolls = 0;
+
+  const interval = setInterval(()=>{
+    const tempNumber = secureRandomDice();
+    showFace(tempNumber);
+
+    tempRolls++;
+
+    if(tempRolls > 12){
+
+      clearInterval(interval);
+
+      const finalNumber = secureRandomDice();
+
+      showFace(finalNumber);
+
+      dice.classList.remove("rolling");
+
+      rolling = false;
+    }
+
+  }, 80);
+}
+
+document.body.addEventListener("touchstart", rollDice);
+document.body.addEventListener("click", rollDice);
+
+randomBackground();
+showFace(secureRandomDice());
+
+</script>
+
+</body>
+</html>

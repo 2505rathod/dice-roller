@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Ultimate Fun Dice Roller</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: Arial, sans-serif;
+  height:100vh;
+  overflow:hidden;
+  touch-action:manipulation;
+  user-select:none;
+  transition:background 1s ease;
+  background:linear-gradient(135deg,#ff512f,#dd2476);
+}
+
+/* ---------- SCREEN LAYOUT ---------- */
+.screen{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+}
+
+.hidden{
+  display:none;
+}
+
+/* ---------- SELECT SCREEN ---------- */
+h1{
+  color:white;
+  margin-bottom:30px;
+  text-align:center;
+  text-shadow:0 4px 10px rgba(0,0,0,.25);
+}
+
+.selector{
+  display:flex;
+  flex-wrap:wrap;
+  gap:20px;
+  justify-content:center;
+  max-width:900px;
+}
+
+.choice{
+  width:140px;
+  height:140px;
+  background:white;
+  border-radius:24px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  cursor:pointer;
+  transition:.25s;
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+  font-size:48px;
+}
+
+.choice:hover{
+  transform:scale(1.08);
+}
+
+/* ---------- GAME SCREEN ---------- */
+.topbar{
+  position:absolute;
+  top:15px;
+  left:15px;
+  right:15px;
+  display:flex;
+  justify-content:space-between;
+  z-index:10;
+}
+
+button{
+  border:none;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  background:white;
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+.play-area{
+  width:100%;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:30px;
+}
+
+.dice-wrap{
+  perspective:1000px;
+}
+
+/* ---------- DICE ---------- */
+.dice{
+  width:180px;
+  height:180px;
+  border-radius:30px;
+  position:relative;
+  background:white;
+  box-shadow:
+      0 20px 50px rgba(0,0,0,.3),
+      inset 0 0 20px rgba(255,255,255,.7);
+  transition:transform .2s linear;
+}
+
+.dot{
+  width:26px;
+  height:26px;
+  background:#111;
+  border-radius:50%;
+  position:absolute;
+  opacity:0;
+  transition:.2s;
+}
+
+.show{ opacity:1; }
+
+.top-left{ top:22px; left:22px; }
+.top-right{ top:22px; right:22px; }
+.middle-left{ top:50%; left:22px; transform:translateY(-50%);}
+.middle-right{ top:50%; right:22px; transform:translateY(-50%);}
+.bottom-left{ bottom:22px; left:22px; }
+.bottom-right{ bottom:22px; right:22px; }
+.center{ top:50%; left:50%; transform:translate(-50%,-50%); }
+
+/* ---------- THEMES ---------- */
+.glass{
+  background:rgba(255,255,255,.35);
+  backdrop-filter: blur(14px);
+}
+
+.gold{
+  background:linear-gradient(135deg,#fff7cc,#ffd54f);
+}
+
+.neon{
+  background:#111;
+  box-shadow:
+    0 0 20px #00ffff,
+    0 0 40px #00ffff;
+}
+.neon .dot{ background:#00ffff; }
+
+.rainbow{
+  background:linear-gradient(45deg,
+  red,orange,yellow,green,blue,indigo,violet);
+}
+
+/* ---------- ANIMATIONS ---------- */
+.spin{ animation:spin .8s linear infinite; }
+.bounce{ animation:bounce .5s linear infinite; }
+.flip{ animation:flip .7s linear infinite; }
+
+@keyframes spin{
+  from{ transform:rotate(0deg);}
+  to{ transform:rotate(360deg);}
+}
+
+@keyframes bounce{
+  0%,100%{ transform:translateY(0) scale(1);}
+  50%{ transform:translateY(-30px) scale(1.1);}
+}
+
+@keyframes flip{
+  from{ transform:rotateY(0deg) rotateX(0deg);}
+  to{ transform:rotateY(360deg) rotateX(360deg);}
+}
+
+.result{
+  color:white;
+  font-size:28px;
+  font-weight:bold;
+  text-shadow:0 3px 10px rgba(0,0,0,.4);
+  text-align:center;
+}
+
+.hint{
+  color:white;
+  font-size:18px;
+  opacity:.9;
+  text-align:center;
+}
+
+.confetti{
+  position:absolute;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  animation:fall 1.8s linear forwards;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(100vh) rotate(720deg);
+    opacity:0;
+  }
+}
+
+@media(max-width:600px){
+  .dice{ width:150px;height:150px; }
+  .choice{ width:120px;height:120px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SELECT SCREEN -->
+<div id="selectScreen" class="screen">
+  <h1>🎲 Choose Your Dice Style</h1>
+
+  <div class="selector">
+    <div class="choice" onclick="selectDice('classic')">🎲<small>Classic</small></div>
+    <div class="choice" onclick="selectDice('glass')">🧊<small>Glass</small></div>
+    <div class="choice" onclick="selectDice('gold')">👑<small>Gold</small></div>
+    <div class="choice" onclick="selectDice('neon')">⚡<small>Neon</small></div>
+    <div class="choice" onclick="selectDice('rainbow')">🌈<small>Rainbow</small></div>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="gameScreen" class="screen hidden">
+
+  <div class="topbar">
+    <button onclick="goHome()">⬅ Change Dice</button>
+    <button onclick="changeAnimation()">✨ Animation</button>
+  </div>
+
+  <div class="play-area" onclick="rollDice()">
+    <div class="dice-wrap">
+      <div id="dice" class="dice">
+        <div class="dot top-left"></div>
+        <div class="dot top-right"></div>
+        <div class="dot middle-left"></div>
+        <div class="dot middle-right"></div>
+        <div class="dot bottom-left"></div>
+        <div class="dot bottom-right"></div>
+        <div class="dot center"></div>
+      </div>
+    </div>
+
+    <div class="result" id="result">Touch Anywhere To Roll</div>
+    <div class="hint">👆 Tap anywhere on screen</div>
+  </div>
+</div>
+
+<script>
+const dice = document.getElementById("dice");
+const dots = document.querySelectorAll(".dot");
+const result = document.getElementById("result");
+
+let currentStyle="classic";
+let rolling=false;
+let animationIndex=0;
+
+const animations=["spin","bounce","flip"];
+
+const backgrounds = [
+ "linear-gradient(135deg,#ff512f,#dd2476)",
+ "linear-gradient(135deg,#00c6ff,#0072ff)",
+ "linear-gradient(135deg,#11998e,#38ef7d)",
+ "linear-gradient(135deg,#8e2de2,#4a00e0)",
+ "linear-gradient(135deg,#f7971e,#ffd200)"
+];
+
+function secureDice(){
+ const arr=new Uint32Array(1);
+ crypto.getRandomValues(arr);
+ return (arr[0]%6)+1;
+}
+
+function randomBg(){
+ document.body.style.background =
+   backgrounds[Math.floor(Math.random()*backgrounds.length)];
+}
+
+function hideDots(){
+ dots.forEach(d=>d.classList.remove("show"));
+}
+
+function showFace(n){
+ hideDots();
+
+ const map={
+  1:[6],
+  2:[0,5],
+  3:[0,6,5],
+  4:[0,1,4,5],
+  5:[0,1,6,4,5],
+  6:[0,1,2,3,4,5]
+ };
+
+ map[n].forEach(i=>dots[i].classList.add("show"));
+}
+
+function selectDice(style){
+ currentStyle=style;
+
+ document.getElementById("selectScreen").classList.add("hidden");
+ document.getElementById("gameScreen").classList.remove("hidden");
+
+ dice.className="dice";
+ if(style!=="classic") dice.classList.add(style);
+
+ randomBg();
+ showFace(secureDice());
+}
+
+function goHome(){
+ document.getElementById("gameScreen").classList.add("hidden");
+ document.getElementById("selectScreen").classList.remove("hidden");
+}
+
+function changeAnimation(){
+ animationIndex=(animationIndex+1)%animations.length;
+ result.innerText="Animation: " + animations[animationIndex].toUpperCase();
+}
+
+function confettiBurst(){
+ for(let i=0;i<25;i++){
+   let c=document.createElement("div");
+   c.className="confetti";
+   c.style.left=Math.random()*window.innerWidth+"px";
+   c.style.top="-20px";
+   c.style.background=`hsl(${Math.random()*360} 100% 50%)`;
+   c.style.width=(8+Math.random()*10)+"px";
+   c.style.height=c.style.width;
+   document.body.appendChild(c);
+
+   setTimeout(()=>c.remove(),1800);
+ }
+}
+
+function rollDice(){
+ if(rolling) return;
+
+ rolling=true;
+ randomBg();
+
+ const anim=animations[animationIndex];
+ dice.classList.add(anim);
+
+ let loops=0;
+
+ const timer=setInterval(()=>{
+   showFace(secureDice());
+   loops++;
+
+   if(loops>12){
+     clearInterval(timer);
+
+     const final=secureDice();
+     showFace(final);
+
+     dice.classList.remove("spin","bounce","flip");
+     result.innerText="🎉 You rolled: " + final;
+
+     confettiBurst();
+     rolling=false;
+   }
+ },80);
+}
+
+document.body.addEventListener("touchstart", e=>{
+ if(!document.getElementById("gameScreen").classList.contains("hidden")){
+   rollDice();
+ }
+});
+</script>
+
+</body>
+</html>
