@@ -35,9 +35,7 @@ body{
   padding:20px;
 }
 
-.hidden{
-  display:none;
-}
+.hidden{ display:none; }
 
 /* ---------- SELECT SCREEN ---------- */
 h1{
@@ -70,9 +68,7 @@ h1{
   font-size:48px;
 }
 
-.choice:hover{
-  transform:scale(1.08);
-}
+.choice:hover{ transform:scale(1.08); }
 
 .choice small{
   font-size:1.8rem;
@@ -87,7 +83,26 @@ h1{
   right:15px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
   z-index:10;
+}
+
+.topbar-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+#fsScore{
+  display:none;
+  color:white;
+  font-size:18px;
+  font-weight:bold;
+  text-shadow:0 2px 8px rgba(0,0,0,.5);
+  background:rgba(0,0,0,.25);
+  padding:8px 16px;
+  border-radius:12px;
+  white-space:nowrap;
 }
 
 button{
@@ -108,11 +123,11 @@ button{
   justify-content:center;
   align-items:center;
   gap:30px;
+  position:relative;
+  z-index:6;
 }
 
-.dice-wrap{
-  perspective:1000px;
-}
+.dice-wrap{ perspective:1000px; }
 
 /* ---------- DICE ---------- */
 .dice{
@@ -139,56 +154,39 @@ button{
 
 .show{ opacity:1; }
 
-.top-left{ top:22px; left:22px; }
-.top-right{ top:22px; right:22px; }
-.middle-left{ top:50%; left:22px; transform:translateY(-50%);}
-.middle-right{ top:50%; right:22px; transform:translateY(-50%);}
-.bottom-left{ bottom:22px; left:22px; }
+.top-left    { top:22px; left:22px; }
+.top-right   { top:22px; right:22px; }
+.middle-left { top:50%; left:22px;  transform:translateY(-50%); }
+.middle-right{ top:50%; right:22px; transform:translateY(-50%); }
+.bottom-left { bottom:22px; left:22px; }
 .bottom-right{ bottom:22px; right:22px; }
-.center{ top:50%; left:50%; transform:translate(-50%,-50%); }
+.center      { top:50%; left:50%; transform:translate(-50%,-50%); }
 
 /* ---------- THEMES ---------- */
 .glass{
   background:rgba(255,255,255,.35);
-  backdrop-filter: blur(14px);
+  backdrop-filter:blur(14px);
 }
-
 .gold{
   background:linear-gradient(135deg,#fff7cc,#ffd54f);
 }
-
 .neon{
   background:#111;
-  box-shadow:
-    0 0 20px #00ffff,
-    0 0 40px #00ffff;
+  box-shadow:0 0 20px #00ffff, 0 0 40px #00ffff;
 }
 .neon .dot{ background:#00ffff; }
-
 .rainbow{
-  background:linear-gradient(45deg,
-  red,orange,yellow,green,blue,indigo,violet);
+  background:linear-gradient(45deg,red,orange,yellow,green,blue,indigo,violet);
 }
 
 /* ---------- ANIMATIONS ---------- */
-.spin{ animation:spin .8s linear infinite; }
-.bounce{ animation:bounce .5s linear infinite; }
-.flip{ animation:flip .7s linear infinite; }
+.spin  { animation:spin   .8s linear   infinite; }
+.bounce{ animation:bounce .5s linear   infinite; }
+.flip  { animation:flip   .7s linear   infinite; }
 
-@keyframes spin{
-  from{ transform:rotate(0deg);}
-  to{ transform:rotate(360deg);}
-}
-
-@keyframes bounce{
-  0%,100%{ transform:translateY(0) scale(1);}
-  50%{ transform:translateY(-30px) scale(1.1);}
-}
-
-@keyframes flip{
-  from{ transform:rotateY(0deg) rotateX(0deg);}
-  to{ transform:rotateY(360deg) rotateX(360deg);}
-}
+@keyframes spin   { from{transform:rotate(0)}        to{transform:rotate(360deg)} }
+@keyframes bounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-30px) scale(1.1)} }
+@keyframes flip   { from{transform:rotateY(0)rotateX(0)} to{transform:rotateY(360deg)rotateX(360deg)} }
 
 .result{
   color:white;
@@ -197,7 +195,6 @@ button{
   text-shadow:0 3px 10px rgba(0,0,0,.4);
   text-align:center;
 }
-
 .hint{
   color:white;
   font-size:18px;
@@ -212,12 +209,30 @@ button{
   border-radius:50%;
   animation:fall 1.8s linear forwards;
 }
+@keyframes fall{ to{ transform:translateY(100vh) rotate(720deg); opacity:0; } }
 
-@keyframes fall{
-  to{
-    transform:translateY(100vh) rotate(720deg);
-    opacity:0;
-  }
+/* ---------- FULLSCREEN DOTS ---------- */
+#dotsLayer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:5;
+  opacity:0;
+}
+#dotsBg{
+  position:absolute;
+  inset:0;
+  z-index:0;
+}
+.screen-dot{
+  position:absolute;
+  width:9vmin;
+  height:9vmin;
+  background:rgba(255,255,255,.92);
+  border-radius:50%;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  z-index:1;
+  opacity:0;
 }
 
 @media(max-width:600px){
@@ -231,24 +246,25 @@ button{
 <!-- SELECT SCREEN -->
 <div id="selectScreen" class="screen">
   <h1>🎲 Choose Your Dice Style</h1>
-
   <div class="selector">
     <div class="choice" onclick="selectDice('classic')">🎲<small>Classic</small></div>
     <div class="choice" onclick="selectDice('glass')">🧊<small>Glass</small></div>
     <div class="choice" onclick="selectDice('gold')">👑<small>Gold</small></div>
     <div class="choice" onclick="selectDice('neon')">⚡<small>Neon</small></div>
     <div class="choice" onclick="selectDice('rainbow')">🌈<small>Rainbow</small></div>
+    <div class="choice" onclick="selectDice('fullscreen')">⚫<small>Dots</small></div>
   </div>
 </div>
 
 <!-- GAME SCREEN -->
 <div id="gameScreen" class="screen hidden">
-
   <div class="topbar">
     <button onclick="goHome()">⬅ Change Dice</button>
-    <button onclick="changeAnimation()">✨ Animation</button>
+    <div class="topbar-right">
+      <span id="fsScore"></span>
+      <button id="animBtn" onclick="changeAnimation()">✨ Animation</button>
+    </div>
   </div>
-
   <div class="play-area" onclick="rollDice()">
     <div class="dice-wrap">
       <div id="dice" class="dice">
@@ -261,22 +277,40 @@ button{
         <div class="dot center"></div>
       </div>
     </div>
-
     <div class="result" id="result">Touch Anywhere To Roll</div>
     <div class="hint">👆 Tap anywhere on screen</div>
   </div>
 </div>
 
+<!-- dotsLayer: background + pip dots travel together as one sliding page -->
+<div id="dotsLayer">
+  <div id="dotsBg"></div>
+  <div class="screen-dot" id="sd0"></div>
+  <div class="screen-dot" id="sd1"></div>
+  <div class="screen-dot" id="sd2"></div>
+  <div class="screen-dot" id="sd3"></div>
+  <div class="screen-dot" id="sd4"></div>
+  <div class="screen-dot" id="sd5"></div>
+</div>
+
 <script>
-const dice = document.getElementById("dice");
-const dots = document.querySelectorAll(".dot");
+const dice   = document.getElementById("dice");
+const dots   = document.querySelectorAll(".dot");
 const result = document.getElementById("result");
+const animBtn = document.getElementById("animBtn");
+const fsScore = document.getElementById("fsScore");
+const hint    = document.querySelector(".hint");
+const layer  = document.getElementById("dotsLayer");
+const dotsBg = document.getElementById("dotsBg");
+const sdots  = Array.from({length:6}, (_,i) => document.getElementById("sd"+i));
 
-let currentStyle="classic";
-let rolling=false;
-let animationIndex=0;
+let currentStyle   = "classic";
+let rolling        = false;
+let animationIndex = 0;
+let transitionIndex= 0;
+let fsAborted      = false;
 
-const animations=["spin","bounce","flip"];
+const animations = ["spin","bounce","flip"];
 
 const backgrounds = [
  "linear-gradient(135deg,#ff512f,#dd2476)",
@@ -286,108 +320,312 @@ const backgrounds = [
  "linear-gradient(135deg,#f7971e,#ffd200)"
 ];
 
+const facePositions = {
+  1:[[50,53]],
+  2:[[28,30],[72,76]],
+  3:[[28,30],[50,53],[72,76]],
+  4:[[28,30],[72,30],[28,76],[72,76]],
+  5:[[28,30],[72,30],[50,53],[28,76],[72,76]],
+  6:[[28,24],[72,24],[28,53],[72,53],[28,82],[72,82]]
+};
+
+/*
+ * Transition definitions.
+ * Each defines:
+ *   name    — shown on the button
+ *   exitMs  — how long the exit animation runs
+ *   enterMs — how long the enter animation runs
+ *   exit(l) — applies exit transition + target styles to the layer
+ *   setup(l)— instantly positions layer off-screen ready for enter (no transition)
+ *   enter(l)— applies enter transition + target styles to the layer
+ */
+const transitions = [
+  {
+    name:"Slide ←", exitMs:130, enterMs:200,
+    exit (l){ l.style.transition=`transform 130ms cubic-bezier(0.55,0,1,0.45),opacity 130ms ease-in`; l.style.transform="translateX(-108vw) scale(0.88)"; l.style.opacity="0.4"; },
+    setup(l){ l.style.transform="translateX(100vw) scale(0.92)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 200ms cubic-bezier(0.22,1,0.36,1),opacity 70ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    name:"Slide →", exitMs:130, enterMs:200,
+    exit (l){ l.style.transition=`transform 130ms cubic-bezier(0.55,0,1,0.45),opacity 130ms ease-in`; l.style.transform="translateX(108vw) scale(0.88)"; l.style.opacity="0.4"; },
+    setup(l){ l.style.transform="translateX(-100vw) scale(0.92)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 200ms cubic-bezier(0.22,1,0.36,1),opacity 70ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    name:"Slide ↑", exitMs:130, enterMs:200,
+    exit (l){ l.style.transition=`transform 130ms cubic-bezier(0.55,0,1,0.45),opacity 130ms ease-in`; l.style.transform="translateY(-108vh) scale(0.88)"; l.style.opacity="0.4"; },
+    setup(l){ l.style.transform="translateY(100vh) scale(0.92)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 200ms cubic-bezier(0.22,1,0.36,1),opacity 70ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    name:"Slide ↓", exitMs:130, enterMs:200,
+    exit (l){ l.style.transition=`transform 130ms cubic-bezier(0.55,0,1,0.45),opacity 130ms ease-in`; l.style.transform="translateY(108vh) scale(0.88)"; l.style.opacity="0.4"; },
+    setup(l){ l.style.transform="translateY(-100vh) scale(0.92)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 200ms cubic-bezier(0.22,1,0.36,1),opacity 70ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    /* Slow graceful slide with rotation — feels like turning a heavy page */
+    name:"Flow", exitMs:280, enterMs:360,
+    exit (l){ l.style.transition=`transform 280ms ease-in,opacity 280ms ease-in`; l.style.transform="translateX(-100vw) rotate(-7deg) scale(0.75)"; l.style.opacity="0"; },
+    setup(l){ l.style.transform="translateX(100vw) rotate(7deg) scale(0.75)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 360ms cubic-bezier(0.34,1.3,0.64,1),opacity 100ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    /* New page wipes in from the left like a curtain sweep */
+    name:"Colour Wipe", exitMs:100, enterMs:340,
+    exit (l){ l.style.transition=`opacity 100ms ease-in`; l.style.opacity="0"; },
+    setup(l){ l.style.transform=""; l.style.opacity="1"; l.style.clipPath="inset(0 100% 0 0)"; },
+    enter(l){ l.style.transition=`clip-path 340ms cubic-bezier(0.25,1,0.5,1)`; l.style.clipPath="inset(0 0% 0 0)"; }
+  },
+  {
+    /* Old page zooms toward viewer; new page grows up from behind */
+    name:"Stack", exitMs:180, enterMs:280,
+    exit (l){ l.style.transition=`transform 180ms ease-out,opacity 150ms ease-out`; l.style.transform="scale(1.25)"; l.style.opacity="0"; },
+    setup(l){ l.style.transform="scale(0.55)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 280ms cubic-bezier(0.34,1.3,0.64,1),opacity 100ms ease-out`; l.style.transform=""; l.style.opacity="1"; }
+  },
+  {
+    /* 3-D card flip on the Y axis */
+    name:"Flip 3D", exitMs:180, enterMs:220,
+    exit (l){ l.style.transition=`transform 180ms ease-in,opacity 90ms ease-in`; l.style.transform="perspective(900px) rotateY(-95deg) scale(0.9)"; l.style.opacity="0"; },
+    setup(l){ l.style.transform="perspective(900px) rotateY(95deg) scale(0.9)"; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`transform 220ms ease-out,opacity 60ms ease-out`; l.style.transform="perspective(900px) rotateY(0deg) scale(1)"; l.style.opacity="1"; }
+  },
+  {
+    /* Pure crossfade — no movement */
+    name:"Dissolve", exitMs:200, enterMs:300,
+    exit (l){ l.style.transition=`opacity 200ms ease-in`; l.style.opacity="0"; },
+    setup(l){ l.style.transform=""; l.style.opacity="0"; },
+    enter(l){ l.style.transition=`opacity 300ms ease-out`; l.style.opacity="1"; }
+  }
+];
+
+/* ---------- Shared helpers ---------- */
 function secureDice(){
- const arr=new Uint32Array(1);
- crypto.getRandomValues(arr);
- return (arr[0]%6)+1;
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return (arr[0] % 6) + 1;
 }
 
 function randomBg(){
- document.body.style.background =
-   backgrounds[Math.floor(Math.random()*backgrounds.length)];
+  return backgrounds[Math.floor(Math.random() * backgrounds.length)];
 }
 
-function hideDots(){
- dots.forEach(d=>d.classList.remove("show"));
-}
+function applyBodyBg(g){ document.body.style.background = g; }
+
+/* ---------- Normal dice ---------- */
+function hideDots(){ dots.forEach(d => d.classList.remove("show")); }
 
 function showFace(n){
- hideDots();
-
- const map={
-  1:[6],
-  2:[0,5],
-  3:[0,6,5],
-  4:[0,1,4,5],
-  5:[0,1,6,4,5],
-  6:[0,1,2,3,4,5]
- };
-
- map[n].forEach(i=>dots[i].classList.add("show"));
+  hideDots();
+  const map = {1:[6],2:[0,5],3:[0,6,5],4:[0,1,4,5],5:[0,1,6,4,5],6:[0,1,2,3,4,5]};
+  map[n].forEach(i => dots[i].classList.add("show"));
 }
 
+/* ---------- Fullscreen dots ---------- */
+function dotSize(){ return Math.min(window.innerWidth, window.innerHeight) * 0.09; }
+
+function setLayerFace(n){
+  const pos = facePositions[n];
+  const sz  = dotSize();
+  sdots.forEach((el,i) => {
+    if(i < pos.length){
+      el.style.left    = (window.innerWidth  * pos[i][0]/100) - sz/2 + "px";
+      el.style.top     = (window.innerHeight * pos[i][1]/100) - sz/2 + "px";
+      el.style.opacity = "1";
+    } else {
+      el.style.opacity = "0";
+    }
+  });
+}
+
+function hideLayer(){
+  layer.style.transition = "none";
+  layer.style.transform  = "";
+  layer.style.clipPath   = "";
+  layer.style.opacity    = "0";
+}
+
+/*
+ * Slide the layer using the currently selected transition.
+ *
+ * Before every exit: reset transform/clipPath to a clean identity so no
+ * stale state from a previous transition bleeds into the next one.
+ */
+function slidePage(n, bg, onDone){
+  const t = transitions[transitionIndex];
+
+  // Clean any stale transform / clip-path before exit starts
+  layer.style.transition = "none";
+  layer.style.transform  = "";
+  layer.style.clipPath   = "";
+  void layer.offsetWidth; // commit clean state
+
+  // EXIT: current page leaves
+  t.exit(layer);
+
+  setTimeout(() => {
+    // Swap content while off-screen
+    dotsBg.style.background = bg;
+    setLayerFace(n);
+
+    // Instant reposition for enter — no transition
+    layer.style.transition = "none";
+    layer.style.clipPath   = "";
+    t.setup(layer);
+
+    void layer.offsetWidth; // commit setup position
+
+    // ENTER: new page arrives
+    t.enter(layer);
+
+    setTimeout(onDone, t.enterMs);
+  }, t.exitMs);
+}
+
+/* ---------- Mode switching ---------- */
 function selectDice(style){
- currentStyle=style;
+  currentStyle = style;
 
- document.getElementById("selectScreen").classList.add("hidden");
- document.getElementById("gameScreen").classList.remove("hidden");
+  document.getElementById("selectScreen").classList.add("hidden");
+  document.getElementById("gameScreen").classList.remove("hidden");
 
- dice.className="dice";
- if(style!=="classic") dice.classList.add(style);
+  if(style === "fullscreen"){
+    document.querySelector(".dice-wrap").style.visibility = "hidden";
+    document.body.style.transition = "none";
+    document.body.style.background = "#111";
 
- randomBg();
- showFace(secureDice());
+    dotsBg.style.background = randomBg();
+    setLayerFace(secureDice());
+
+    layer.style.transition = "none";
+    layer.style.transform  = "";
+    layer.style.clipPath   = "";
+    layer.style.opacity    = "1";
+
+    animBtn.textContent    = "✨ " + transitions[transitionIndex].name;
+    hint.style.display     = "none";
+    result.style.display   = "none";
+    fsScore.style.display  = "block";
+    fsScore.textContent    = "🎲 —";
+  } else {
+    document.querySelector(".dice-wrap").style.visibility = "";
+    hideLayer();
+    document.body.style.transition = "background 1s ease";
+    applyBodyBg(randomBg());
+    dice.className = "dice";
+    if(style !== "classic") dice.classList.add(style);
+    showFace(secureDice());
+    animBtn.textContent   = "✨ Animation";
+    hint.style.display    = "";
+    result.style.display  = "";
+    fsScore.style.display = "none";
+  }
 }
 
 function goHome(){
- document.getElementById("gameScreen").classList.add("hidden");
- document.getElementById("selectScreen").classList.remove("hidden");
+  fsAborted = true;
+  hideLayer();
+  document.querySelector(".dice-wrap").style.visibility = "";
+  rolling = false;
+  document.body.style.transition = "background 1s ease";
+  applyBodyBg(randomBg());
+  hint.style.display    = "";
+  result.style.display  = "";
+  fsScore.style.display = "none";
+  document.getElementById("gameScreen").classList.add("hidden");
+  document.getElementById("selectScreen").classList.remove("hidden");
 }
 
 function changeAnimation(){
- animationIndex=(animationIndex+1)%animations.length;
- result.innerText="Animation: " + animations[animationIndex].toUpperCase();
+  if(currentStyle === "fullscreen"){
+    transitionIndex = (transitionIndex + 1) % transitions.length;
+    animBtn.textContent  = "✨ " + transitions[transitionIndex].name;
+    result.innerText     = transitions[transitionIndex].name;
+  } else {
+    animationIndex = (animationIndex + 1) % animations.length;
+    result.innerText = "Animation: " + animations[animationIndex].toUpperCase();
+  }
 }
 
 function confettiBurst(){
- for(let i=0;i<25;i++){
-   let c=document.createElement("div");
-   c.className="confetti";
-   c.style.left=Math.random()*window.innerWidth+"px";
-   c.style.top="-20px";
-   c.style.background=`hsl(${Math.random()*360} 100% 50%)`;
-   c.style.width=(8+Math.random()*10)+"px";
-   c.style.height=c.style.width;
-   document.body.appendChild(c);
-
-   setTimeout(()=>c.remove(),1800);
- }
+  for(let i=0;i<25;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left       = Math.random() * window.innerWidth + "px";
+    c.style.top        = "-20px";
+    c.style.background = `hsl(${Math.random()*360} 100% 50%)`;
+    c.style.width      = (8 + Math.random()*10) + "px";
+    c.style.height     = c.style.width;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 1800);
+  }
 }
 
+/* ---------- Fullscreen dots roll ---------- */
+function rollFullscreen(){
+  rolling   = true;
+  fsAborted = false;
+
+  const PAGES = 4;
+  const PAUSE = 45;
+  let   page  = 0;
+
+  function nextPage(){
+    if(fsAborted) return;
+
+    if(page >= PAGES){
+      const final = secureDice();
+      slidePage(final, randomBg(), () => {
+        if(fsAborted) return;
+        fsScore.textContent = "🎉 " + final;
+        confettiBurst();
+        rolling = false;
+      });
+      return;
+    }
+
+    page++;
+    slidePage(secureDice(), randomBg(), () => {
+      setTimeout(nextPage, PAUSE);
+    });
+  }
+
+  nextPage();
+}
+
+/* ---------- Normal dice roll ---------- */
 function rollDice(){
- if(rolling) return;
+  if(rolling) return;
+  if(currentStyle === "fullscreen"){ rollFullscreen(); return; }
 
- rolling=true;
- randomBg();
+  rolling = true;
+  applyBodyBg(randomBg());
 
- const anim=animations[animationIndex];
- dice.classList.add(anim);
+  const anim = animations[animationIndex];
+  dice.classList.add(anim);
 
- let loops=0;
-
- const timer=setInterval(()=>{
-   showFace(secureDice());
-   loops++;
-
-   if(loops>12){
-     clearInterval(timer);
-
-     const final=secureDice();
-     showFace(final);
-
-     dice.classList.remove("spin","bounce","flip");
-     result.innerText="🎉 You rolled: " + final;
-
-     confettiBurst();
-     rolling=false;
-   }
- },80);
+  let loops = 0;
+  const timer = setInterval(() => {
+    showFace(secureDice());
+    loops++;
+    if(loops > 12){
+      clearInterval(timer);
+      const final = secureDice();
+      showFace(final);
+      dice.classList.remove("spin","bounce","flip");
+      result.innerText = "🎉 You rolled: " + final;
+      confettiBurst();
+      rolling = false;
+    }
+  }, 80);
 }
 
-document.body.addEventListener("touchstart", e=>{
- if(!document.getElementById("gameScreen").classList.contains("hidden")){
-   rollDice();
- }
+document.body.addEventListener("touchstart", e => {
+  if(!document.getElementById("gameScreen").classList.contains("hidden")){
+    rollDice();
+  }
 });
 </script>
 
